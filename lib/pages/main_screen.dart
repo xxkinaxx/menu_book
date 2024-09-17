@@ -1,15 +1,29 @@
 part of 'pages.dart';
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return MenuScreen();
   }
 }
 
-class MenuScreen extends StatelessWidget {
+class MenuScreen extends StatefulWidget {
+
+  @override
+  State<MenuScreen> createState() => _MenuScreenState();
+}
+
+class _MenuScreenState extends State<MenuScreen> {
+  int selectedPage = 0;
+
+  PageController pageController = PageController(initialPage: 0);
 
   @override
   Widget build(BuildContext context) {
@@ -19,70 +33,40 @@ class MenuScreen extends StatelessWidget {
         centerTitle: true,
         backgroundColor: Colors.black,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: menuItemsList.length,
-            itemBuilder: (BuildContext context, index) {
-            final MenuItem menuItems = menuItemsList[index];
-            return InkWell(
-              onTap: (){
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        title: Text(menuItems.name),
-                        content: SizedBox(
-                          height: 350,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                height: 200,
-                                width: 325,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(image: NetworkImage(menuItems.imageUrl),
-                                  fit: BoxFit.cover
-                                  ),
-                                  borderRadius: BorderRadius.circular(15)
-                                ),
-                              ),
-                              SizedBox(height: 20,),
-                              Text('Deskripsi: ${menuItems.description}'),
-                              Text('Harga: ${menuItems.price}'),
-                              Text('kategori: ${menuItems.category}'),
-                              Text('Estimasi waktu: ${menuItems.prepTime}'),
-                            ],
-                          ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text('CLOSE'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              // Your action here
-                              Navigator.of(context).pop();
-                            },
-                            child: Text('OK'),
-                          ),
-                        ],
-                      );
-                    });
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: PageView(
+              controller: pageController,
+              onPageChanged: (index){
+                setState(() {
+                  selectedPage = index;
+                });
               },
-              child: MenuCard(menuItem: menuItems,),
-            );
-            }
-        )
+              children: [
+                FoodPage(),
+                Center(
+                  child: Text('Screen 2', style: TextStyle(color: Colors.white),),
+                )
+              ],
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: CustomBottomNavbar(
+              selectedIndex: selectedPage,
+              onTap: (int index){
+                setState(() {
+                  selectedPage = index;
+                });
+                pageController.jumpToPage(index);
+              },
+            ),
+          )
+        ],
       ),
       backgroundColor: Colors.black,
     );
   }
 }
-
